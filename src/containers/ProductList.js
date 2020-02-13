@@ -12,6 +12,7 @@ import {
   Message,
   Segment
 } from "semantic-ui-react";
+
 import { productListURL } from "../constants";
 
 class ProductList extends React.Component {
@@ -37,7 +38,7 @@ class ProductList extends React.Component {
   render() {
     const { data, error, loading } = this.state;
     return (
-      <Container>
+      <Container style={{ marginTop: "100px" }}>
         {error && (
           <Message
             error
@@ -73,11 +74,11 @@ class ProductList extends React.Component {
                     {item.discount_price && (
                       <Label
                         color={
-                          item.label === "primary"
-                            ? "blue"
-                            : item.label === "secondary"
-                            ? "green"
-                            : "olive"
+                          item.label === "New"
+                            ? "olive"
+                            : item.label === "Best seller"
+                            ? "red"
+                            : "blue"
                         }
                       >
                         {item.label}
