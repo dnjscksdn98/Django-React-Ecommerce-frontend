@@ -1,24 +1,162 @@
-import React, { Component } from "react";
+import React from "react";
 import {
   CardElement,
   injectStripe,
   Elements,
   StripeProvider
 } from "react-stripe-elements";
-import { Button, Container, Message } from "semantic-ui-react";
+import {
+  Button,
+  Container,
+  Message,
+  Item,
+  Divider,
+  Header,
+  Loader,
+  Segment,
+  Dimmer,
+  Image,
+  Label,
+  Form,
+  Checkbox
+} from "semantic-ui-react";
 
 import { authAxios } from "../utils";
-import { checkoutURL } from "../constants";
+import { checkoutURL, orderSummaryURL, addCouponURL } from "../constants";
 
-class CheckoutForm extends Component {
+class CouponForm extends React.Component {
   state = {
+    code: ""
+  };
+
+  handleChange = e => {
+    this.setState({
+      code: e.target.value
+    });
+  };
+
+  handleSubmit = e => {
+    const { code } = this.state;
+    this.props.handleAddCoupon(e, code);
+    this.setState({ code: "" });
+  };
+
+  render() {
+    const { code } = this.state;
+    return (
+      <React.Fragment>
+        <Form onSubmit={this.handleSubmit}>
+          <Form.Field>
+            <label>Coupon code</label>
+            <input
+              placeholder="Enter a coupon.."
+              value={code}
+              onChange={this.handleChange}
+            />
+          </Form.Field>
+          <Button type="submit">Submit</Button>
+        </Form>
+      </React.Fragment>
+    );
+  }
+}
+
+const OrderPreview = props => {
+  const { data } = props;
+  return (
+    <React.Fragment>
+      {data && (
+        <React.Fragment>
+          <Item.Group relaxed>
+            {data.order_items.map((orderItem, i) => {
+              console.log(orderItem);
+              return (
+                <Item key={i}>
+                  <Item.Image
+                    size="tiny"
+                    src={`http://127.0.0.1:8000${orderItem.item_obj.image}`}
+                  />
+                  <Item.Content verticalAlign="middle">
+                    <Item.Header as="a">
+                      {orderItem.quantity} x {orderItem.item_obj.title}
+                    </Item.Header>
+                    <Item.Extra>
+                      <Label>${orderItem.final_price}</Label>
+                    </Item.Extra>
+                  </Item.Content>
+                </Item>
+              );
+            })}
+          </Item.Group>
+
+          <Item.Group>
+            <Item>
+              <Item.Content>
+                <Item.Header>
+                  Order Total: ${data.total}
+                  {data.coupon && (
+                    <Label color="green" style={{ marginLeft: "10px" }}>
+                      Current coupon: {data.coupon.code} for $
+                      {data.coupon.amount}
+                    </Label>
+                  )}
+                </Item.Header>
+              </Item.Content>
+            </Item>
+          </Item.Group>
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  );
+};
+
+class CheckoutForm extends React.Component {
+  state = {
+    data: null,
     loading: false,
     error: null,
     success: false
   };
 
-  submit = event => {
-    event.preventDefault();
+  componentDidMount() {
+    this.handleFetchOrder();
+  }
+
+  handleFetchOrder = () => {
+    this.setState({ loading: true });
+    authAxios
+      .get(orderSummaryURL)
+      .then(res => {
+        this.setState({ data: res.data, loading: false });
+      })
+      .catch(err => {
+        if (err.response.status === 404) {
+          this.setState({
+            error: "You currently do not have an order",
+            loading: false
+          });
+        } else {
+          this.setState({ error: err, loading: false });
+        }
+      });
+  };
+
+  handleAddCoupon = (e, code) => {
+    e.preventDefault();
+    this.setState({ loading: true });
+    authAxios
+      .post(addCouponURL, { code })
+      .then(res => {
+        this.setState({ loading: false });
+        this.handleFetchOrder();
+      })
+      .catch(err => {
+        this.setState({ error: err, loading: false });
+      });
+  };
+
+  submit = ev => {
+    ev.preventDefault();
     this.setState({ loading: true });
     if (this.props.stripe) {
       this.props.stripe.createToken().then(result => {
@@ -29,7 +167,7 @@ class CheckoutForm extends Component {
             .post(checkoutURL, { stripeToken: result.token.id })
             .then(res => {
               this.setState({ loading: false, success: true });
-              // TODO : redirect the user
+              // redirect the user
             })
             .catch(err => {
               this.setState({ loading: false, error: err });
@@ -42,14 +180,23 @@ class CheckoutForm extends Component {
   };
 
   render() {
-    const { error, loading, success } = this.state;
+    const { data, error, loading, success } = this.state;
     return (
       <div>
         {error && (
-          <Message negative>
-            <Message.Header>Your payment was unsuccessful</Message.Header>
-            <p>{JSON.stringify(error)}</p>
-          </Message>
+          <Message
+            error
+            header="There was some errors with your submission"
+            content={JSON.stringify(error)}
+          />
+        )}
+        {loading && (
+          <Segment>
+            <Dimmer active inverted>
+              <Loader inverted>Loading</Loader>
+            </Dimmer>
+            <Image src="/images/wireframe/short-paragraph.png" />
+          </Segment>
         )}
         {success && (
           <Message positive>
@@ -59,7 +206,15 @@ class CheckoutForm extends Component {
             </p>
           </Message>
         )}
-        <p>Would you like to complete the purchase?</p>
+
+        <OrderPreview data={data} />
+        <Divider />
+        <CouponForm
+          handleAddCoupon={(e, code) => this.handleAddCoupon(e, code)}
+        />
+        <Divider />
+
+        <Header>Would you like to complete the purchase?</Header>
         <CardElement />
         <Button
           loading={loading}
@@ -78,7 +233,7 @@ class CheckoutForm extends Component {
 const InjectedForm = injectStripe(CheckoutForm);
 
 const WrappedForm = () => (
-  <Container text style={{ marginTop: "200px", marginBottom: "200px" }}>
+  <Container text style={{ marginTop: "100px", marginBottom: "200px" }}>
     <StripeProvider apiKey="pk_test_O934QkJvZFxzsLTj270UgOZc003V0PRbpz">
       <div>
         <h1>Complete your order</h1>

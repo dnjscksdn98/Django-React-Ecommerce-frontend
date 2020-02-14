@@ -9,14 +9,14 @@ import OrderSummary from "./containers/OrderSummary";
 import Checkout from "./containers/Checkout";
 
 const BaseRouter = () => (
-  <>
+  <React.Fragment>
     <Route path="/checkout" component={Checkout} />
     <Route path="/order-summary" component={OrderSummary} />
     <Route path="/products" component={ProductList} />
     <Route path="/login" component={Login} />
     <Route path="/signup" component={Signup} />
     <Route exact path="/" component={HomepageLayout} />
-  </>
+  </React.Fragment>
 );
 
 export default BaseRouter;

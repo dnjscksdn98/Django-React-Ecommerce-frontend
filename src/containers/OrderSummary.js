@@ -6,7 +6,12 @@ import {
   Label,
   Menu,
   Table,
-  Button
+  Button,
+  Message,
+  Dimmer,
+  Loader,
+  Segment,
+  Image
 } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 
@@ -32,16 +37,40 @@ class OrderSummary extends React.Component {
         this.setState({ data: res.data, loading: false });
       })
       .catch(err => {
-        this.setState({ error: err, loading: false });
+        if (err.response.status === 404) {
+          this.setState({
+            error: "You currently don't have an order.",
+            loading: false
+          });
+        } else {
+          this.setState({ error: err, loading: false });
+        }
       });
   };
 
   render() {
     const { data, error, loading } = this.state;
     console.log(data);
+
     return (
       <Container style={{ marginTop: "100px" }}>
         <Header as="h3">Order Summary</Header>
+        {error && (
+          <Message
+            error
+            header="There was an error."
+            content={JSON.stringify(error)}
+          />
+        )}
+        {loading && (
+          <Segment>
+            <Dimmer active inverted>
+              <Loader inverted>Loading</Loader>
+            </Dimmer>
+
+            <Image src="/images/wireframe/short-paragraph.png" />
+          </Segment>
+        )}
         {data && (
           <Table celled>
             <Table.Header>
