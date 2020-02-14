@@ -17,49 +17,11 @@ import {
   Dimmer,
   Image,
   Label,
-  Form,
-  Checkbox
+  Form
 } from "semantic-ui-react";
 
 import { authAxios } from "../utils";
 import { checkoutURL, orderSummaryURL, addCouponURL } from "../constants";
-
-class CouponForm extends React.Component {
-  state = {
-    code: ""
-  };
-
-  handleChange = e => {
-    this.setState({
-      code: e.target.value
-    });
-  };
-
-  handleSubmit = e => {
-    const { code } = this.state;
-    this.props.handleAddCoupon(e, code);
-    this.setState({ code: "" });
-  };
-
-  render() {
-    const { code } = this.state;
-    return (
-      <React.Fragment>
-        <Form onSubmit={this.handleSubmit}>
-          <Form.Field>
-            <label>Coupon code</label>
-            <input
-              placeholder="Enter a coupon.."
-              value={code}
-              onChange={this.handleChange}
-            />
-          </Form.Field>
-          <Button type="submit">Submit</Button>
-        </Form>
-      </React.Fragment>
-    );
-  }
-}
 
 const OrderPreview = props => {
   const { data } = props;
@@ -68,10 +30,10 @@ const OrderPreview = props => {
       {data && (
         <React.Fragment>
           <Item.Group relaxed>
-            {data.order_items.map((orderItem, i) => {
+            {data.order_items.map((orderItem, index) => {
               console.log(orderItem);
               return (
-                <Item key={i}>
+                <Item key={index}>
                   <Item.Image
                     size="tiny"
                     src={`http://127.0.0.1:8000${orderItem.item_obj.image}`}
@@ -81,7 +43,7 @@ const OrderPreview = props => {
                       {orderItem.quantity} x {orderItem.item_obj.title}
                     </Item.Header>
                     <Item.Extra>
-                      <Label>${orderItem.final_price}</Label>
+                      <Label>$ {orderItem.final_price}</Label>
                     </Item.Extra>
                   </Item.Content>
                 </Item>
@@ -93,7 +55,7 @@ const OrderPreview = props => {
             <Item>
               <Item.Content>
                 <Item.Header>
-                  Order Total: ${data.total}
+                  Order Total: $ {data.total}
                   {data.coupon && (
                     <Label color="green" style={{ marginLeft: "10px" }}>
                       Current coupon: {data.coupon.code} for $
@@ -109,6 +71,43 @@ const OrderPreview = props => {
     </React.Fragment>
   );
 };
+
+class CouponForm extends React.Component {
+  state = {
+    code: ""
+  };
+
+  handleChange = event => {
+    this.setState({
+      code: event.target.value
+    });
+  };
+
+  handleSubmit = event => {
+    const { code } = this.state;
+    this.props.handleAddCoupon(event, code);
+    this.setState({ code: "" });
+  };
+
+  render() {
+    const { code } = this.state;
+    return (
+      <React.Fragment>
+        <Form onSubmit={this.handleSubmit}>
+          <Form.Field>
+            <label>Coupon code</label>
+            <input
+              placeholder="Enter a coupon."
+              value={code}
+              onChange={this.handleChange}
+            />
+          </Form.Field>
+          <Button type="submit">Submit</Button>
+        </Form>
+      </React.Fragment>
+    );
+  }
+}
 
 class CheckoutForm extends React.Component {
   state = {
@@ -141,8 +140,8 @@ class CheckoutForm extends React.Component {
       });
   };
 
-  handleAddCoupon = (e, code) => {
-    e.preventDefault();
+  handleAddCoupon = (event, code) => {
+    event.preventDefault();
     this.setState({ loading: true });
     authAxios
       .post(addCouponURL, { code })
@@ -155,8 +154,8 @@ class CheckoutForm extends React.Component {
       });
   };
 
-  submit = ev => {
-    ev.preventDefault();
+  submit = event => {
+    event.preventDefault();
     this.setState({ loading: true });
     if (this.props.stripe) {
       this.props.stripe.createToken().then(result => {
@@ -210,7 +209,7 @@ class CheckoutForm extends React.Component {
         <OrderPreview data={data} />
         <Divider />
         <CouponForm
-          handleAddCoupon={(e, code) => this.handleAddCoupon(e, code)}
+          handleAddCoupon={(event, code) => this.handleAddCoupon(event, code)}
         />
         <Divider />
 

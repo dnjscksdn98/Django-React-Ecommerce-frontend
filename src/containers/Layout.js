@@ -36,6 +36,9 @@ class CustomLayout extends React.Component {
             <Menu.Menu position="right">
               {authenticated ? (
                 <React.Fragment>
+                  <Link to="/profile">
+                    <Menu.Item>Profile</Menu.Item>
+                  </Link>
                   <Dropdown
                     icon="cart"
                     loading={loading}
