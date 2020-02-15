@@ -10,10 +10,17 @@ import {
   Segment,
   Dimmer,
   Image,
-  Select
+  Select,
+  Card,
+  Label
 } from "semantic-ui-react";
 
-import { addressListURL, addressCreateURL, countryListURL } from "../constants";
+import {
+  addressListURL,
+  addressCreateURL,
+  countryListURL,
+  userIDURL
+} from "../constants";
 import { authAxios } from "../utils";
 
 class Profile extends React.Component {
@@ -23,15 +30,34 @@ class Profile extends React.Component {
     error: null,
     addresses: [],
     countries: [],
-    formData: {}
+    formData: { default: false },
+    saving: false,
+    success: false,
+    userID: null
   };
 
   componentDidMount() {
     this.handleFetchAddresses();
     this.handleFetchCountries();
+    this.handleFetchUserID();
   }
 
-  handleItemClick = name => this.setState({ activeItem: name });
+  handleItemClick = name => {
+    this.setState({ activeItem: name }, () => {
+      this.handleFetchAddresses();
+    });
+  };
+
+  handleFetchUserID = () => {
+    authAxios
+      .get(userIDURL)
+      .then(res => {
+        this.setState({ userID: res.data.userID });
+      })
+      .catch(err => {
+        this.setState({ error: err });
+      });
+  };
 
   handleFormatCountries = countries => {
     const keys = Object.keys(countries);
@@ -45,9 +71,10 @@ class Profile extends React.Component {
   };
 
   handleFetchAddresses = () => {
+    const { activeItem } = this.state;
     this.setState({ loading: true });
     authAxios
-      .get(addressListURL)
+      .get(addressListURL(activeItem === "billingAddress" ? "B" : "S"))
       .then(res => {
         this.setState({ addresses: res.data, loading: false });
       })
@@ -76,15 +103,53 @@ class Profile extends React.Component {
     this.setState({ formData: updatedFormData });
   };
 
-  handleCreateAddress = event => {
-    event.preventDefault();
+  handleSelectChange = (event, { name, value }) => {
     const { formData } = this.state;
-    console.log(formData);
+    const updatedFormData = {
+      ...formData,
+      [name]: value
+    };
+    this.setState({ formData: updatedFormData });
+  };
+
+  handleToggleChange = () => {
+    const { formData } = this.state;
+    const updatedFormData = {
+      ...formData,
+      default: !formData.default
+    };
+    this.setState({ formData: updatedFormData });
+  };
+
+  handleCreateAddress = event => {
+    this.setState({ saving: true });
+    event.preventDefault();
+    const { formData, activeItem, userID } = this.state;
+
+    authAxios
+      .post(addressCreateURL, {
+        ...formData,
+        user: userID,
+        address_type: activeItem === "billingAddress" ? "B" : "S"
+      })
+      .then(res => {
+        this.setState({ saving: false, success: true });
+      })
+      .catch(err => {
+        this.setState({ error: err });
+      });
   };
 
   render() {
-    const { activeItem, loading, error, addresses, countries } = this.state;
-    console.log(countries);
+    const {
+      activeItem,
+      loading,
+      error,
+      addresses,
+      countries,
+      saving,
+      success
+    } = this.state;
 
     return (
       <Grid container columns={2} divided style={{ marginTop: "50px" }}>
@@ -105,9 +170,6 @@ class Profile extends React.Component {
                 <Image src="/images/wireframe/short-paragraph.png" />
               </Segment>
             )}
-            {addresses.map(address => {
-              return <div>{address.street_address}</div>;
-            })}
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
@@ -128,9 +190,34 @@ class Profile extends React.Component {
           <Grid.Column width={10}>
             <Header>{`Update your ${
               activeItem === "billingAddress" ? "Billing" : "Shipping"
-            }`}</Header>
+            } address`}</Header>
             <Divider />
-            <Form autoComplete="off">
+            <Card.Group>
+              {addresses.map(address => {
+                return (
+                  <Card fluid key={address.id}>
+                    <Card.Content>
+                      {address.default && (
+                        <Label as="a" color="blue" ribbon="right">
+                          Default Address
+                        </Label>
+                      )}
+                      <Card.Header>
+                        {address.street_address}, {address.apartment_address}
+                      </Card.Header>
+                      <Card.Meta>{address.country}</Card.Meta>
+                      <Card.Description>{address.zip}</Card.Description>
+                    </Card.Content>
+                  </Card>
+                );
+              })}
+            </Card.Group>
+            {addresses.length > 0 ? <Divider /> : null}
+            <Form
+              autoComplete="off"
+              onSubmit={this.handleCreateAddress}
+              success={success}
+            >
               <Form.Input
                 name="street_address"
                 placeholder="Street Address"
@@ -145,13 +232,14 @@ class Profile extends React.Component {
               />
               <Form.Field required>
                 <Select
+                  loading={countries.length < 1}
                   name="country"
                   placeholder="Country"
                   clearable
                   search
-                  options={[]}
+                  options={countries}
                   fluid
-                  onChange={this.handleChange}
+                  onChange={this.handleSelectChange}
                 />
               </Form.Field>
               <Form.Input
@@ -163,9 +251,18 @@ class Profile extends React.Component {
               <Form.Checkbox
                 name="default"
                 label="Make this the default address"
-                onChange={this.handleChange}
+                onChange={this.handleToggleChange}
               />
-              <Form.Button primary>Save</Form.Button>
+              {success && (
+                <Message
+                  success
+                  header="Success!"
+                  content="Your address was saved."
+                />
+              )}
+              <Form.Button primary disabled={saving} loading={saving}>
+                Save
+              </Form.Button>
             </Form>
           </Grid.Column>
         </Grid.Row>

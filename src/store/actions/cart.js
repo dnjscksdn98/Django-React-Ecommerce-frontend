@@ -9,7 +9,6 @@ export const cartStart = () => {
 };
 
 export const cartSuccess = data => {
-  console.log(data);
   return {
     type: CART_SUCCESS,
     data
