@@ -239,6 +239,7 @@ class Profile extends React.Component {
                   search
                   options={countries}
                   fluid
+                  // value={countries.text}
                   onChange={this.handleSelectChange}
                 />
               </Form.Field>

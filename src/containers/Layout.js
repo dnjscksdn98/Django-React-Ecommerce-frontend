@@ -47,25 +47,30 @@ class CustomLayout extends React.Component {
                     className="link item"
                   >
                     <Dropdown.Menu>
-                      {cart &&
-                        cart.order_items.map(order_item => {
-                          return (
-                            <Dropdown.Item key={order_item.id}>
-                              {order_item.quantity} x {order_item.item}
-                            </Dropdown.Item>
-                          );
-                        })}
-                      {cart && cart.order_items.length === 0 ? (
-                        <Dropdown.Item>No Items</Dropdown.Item>
-                      ) : null}
-                      <Dropdown.Divider />
-                      <Dropdown.Item
-                        icon="arrow right"
-                        text="Checkout"
-                        onClick={() =>
-                          this.props.history.push("/order-summary")
-                        }
-                      />
+                      {cart !== null ? (
+                        <React.Fragment>
+                          {cart.order_items.map(order_item => {
+                            return (
+                              <Dropdown.Item key={order_item.id}>
+                                {order_item.quantity} x {order_item.item}
+                              </Dropdown.Item>
+                            );
+                          })}
+                          {cart.order_items.length === 0 ? (
+                            <Dropdown.Item>No Items</Dropdown.Item>
+                          ) : null}
+                          <Dropdown.Divider />
+                          <Dropdown.Item
+                            icon="arrow right"
+                            text="Checkout"
+                            onClick={() =>
+                              this.props.history.push("/order-summary")
+                            }
+                          />
+                        </React.Fragment>
+                      ) : (
+                        <Dropdown.Item>No items</Dropdown.Item>
+                      )}
                     </Dropdown.Menu>
                   </Dropdown>
                   <Menu.Item header onClick={() => this.props.logout()}>
