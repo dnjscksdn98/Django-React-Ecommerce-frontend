@@ -18,7 +18,8 @@ import {
   Image,
   Label,
   Form,
-  Select
+  Select,
+  Icon
 } from "semantic-ui-react";
 import { Link, withRouter } from "react-router-dom";
 
@@ -38,7 +39,6 @@ const OrderPreview = props => {
         <React.Fragment>
           <Item.Group relaxed>
             {data.order_items.map((orderItem, index) => {
-              console.log(orderItem);
               return (
                 <Item key={index}>
                   <Item.Image
@@ -109,7 +109,10 @@ class CouponForm extends React.Component {
               onChange={this.handleChange}
             />
           </Form.Field>
-          <Button type="submit">Submit</Button>
+          <Button type="submit">
+            <Icon name="barcode" />
+            Submit
+          </Button>
         </Form>
       </React.Fragment>
     );
@@ -139,9 +142,9 @@ class CheckoutForm extends React.Component {
   };
 
   handleGetDefaultAddress = addresses => {
-    const filteredAddresses = addresses.filter(address => address.default);
-    if (filteredAddresses.length > 0) {
-      return filteredAddresses[0].id;
+    const filteredAddress = addresses.filter(address => address.default);
+    if (filteredAddress.length > 0) {
+      return filteredAddress[0].id;
     }
     return "";
   };
@@ -239,6 +242,7 @@ class CheckoutForm extends React.Component {
             .then(res => {
               this.setState({ loading: false, success: true });
               // redirect the user
+              // to a success page : go to home, continue shopping(product-list)
             })
             .catch(err => {
               this.setState({ loading: false, error: err });
@@ -282,6 +286,7 @@ class CheckoutForm extends React.Component {
 
         <OrderPreview data={data} />
         <Divider />
+
         <CouponForm
           handleAddCoupon={(event, code) => this.handleAddCoupon(event, code)}
         />
@@ -343,6 +348,7 @@ class CheckoutForm extends React.Component {
               onClick={this.submit}
               style={{ marginTop: "30px" }}
             >
+              <Icon name="payment" />
               Submit
             </Button>
           </React.Fragment>

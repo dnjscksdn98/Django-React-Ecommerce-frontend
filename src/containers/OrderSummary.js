@@ -2,16 +2,15 @@ import React from "react";
 import {
   Container,
   Header,
-  Icon,
   Label,
-  Menu,
   Table,
   Button,
   Message,
   Dimmer,
   Loader,
   Segment,
-  Image
+  Image,
+  Icon
 } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 
@@ -22,7 +21,7 @@ class OrderSummary extends React.Component {
   state = {
     data: null,
     error: null,
-    loading: null
+    loading: false
   };
 
   componentDidMount() {
@@ -50,7 +49,6 @@ class OrderSummary extends React.Component {
 
   render() {
     const { data, error, loading } = this.state;
-    console.log(data);
 
     return (
       <Container style={{ marginTop: "100px" }}>
@@ -116,7 +114,10 @@ class OrderSummary extends React.Component {
               <Table.Row>
                 <Table.HeaderCell colSpan="5" textAlign="right">
                   <Link to="/checkout">
-                    <Button color="yellow">Checkout</Button>
+                    <Button color="yellow">
+                      <Icon name="check" />
+                      Checkout
+                    </Button>
                   </Link>
                 </Table.HeaderCell>
               </Table.Row>

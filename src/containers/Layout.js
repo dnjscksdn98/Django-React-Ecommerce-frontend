@@ -8,7 +8,8 @@ import {
   Image,
   List,
   Menu,
-  Segment
+  Segment,
+  Icon
 } from "semantic-ui-react";
 import { Link, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
@@ -37,7 +38,10 @@ class CustomLayout extends React.Component {
               {authenticated ? (
                 <React.Fragment>
                   <Link to="/profile">
-                    <Menu.Item>Profile</Menu.Item>
+                    <Menu.Item>
+                      <Icon name="user" />
+                      Profile
+                    </Menu.Item>
                   </Link>
                   <Dropdown
                     icon="cart"

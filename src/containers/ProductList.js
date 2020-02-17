@@ -26,24 +26,27 @@ class ProductList extends React.Component {
   };
 
   componentDidMount() {
+    this.handleFetchProductList();
+  }
+
+  handleFetchProductList = () => {
     this.setState({ loading: true });
     axios
       .get(productListURL)
       .then(res => {
-        console.log(res.data);
         this.setState({ data: res.data, loading: false });
       })
       .catch(err => {
         this.setState({ error: err, loading: false });
       });
-  }
+  };
 
   handleAddToCart = slug => {
     this.setState({ loading: true });
     authAxios
       .post(addToCartURL, { slug })
       .then(res => {
-        console.log(res.data);
+        // refresh the cart
         this.props.fetchCart();
         this.setState({ loading: false });
       })
@@ -54,6 +57,7 @@ class ProductList extends React.Component {
 
   render() {
     const { data, error, loading } = this.state;
+
     return (
       <Container style={{ marginTop: "100px" }}>
         {error && (

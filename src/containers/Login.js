@@ -9,6 +9,7 @@ import {
 } from "semantic-ui-react";
 import { connect } from "react-redux";
 import { NavLink, Redirect } from "react-router-dom";
+
 import { authLogin } from "../store/actions/auth";
 
 class LoginForm extends React.Component {
@@ -17,12 +18,12 @@ class LoginForm extends React.Component {
     password: ""
   };
 
-  handleChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
+  handleChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
+  handleSubmit = event => {
+    event.preventDefault();
     const { username, password } = this.state;
     this.props.login(username, password);
   };
@@ -41,7 +42,7 @@ class LoginForm extends React.Component {
       >
         <Grid.Column style={{ maxWidth: 450 }}>
           <Header as="h2" color="teal" textAlign="center">
-            Log-in to your account
+            Login to your account
           </Header>
           {error && <p>{this.props.error.message}</p>}
 

@@ -12,5 +12,7 @@ export const addCouponURL = `${endpoint}/add-coupon/`;
 export const addressListURL = addressType =>
   `${endpoint}/address/list/?address_type=${addressType}`;
 export const addressCreateURL = `${endpoint}/address/create/`;
+export const addressUpdateURL = id => `${endpoint}/address/${id}/update/`;
+export const addressDeleteURL = id => `${endpoint}/address/${id}/delete/`;
 export const countryListURL = `${endpoint}/country/list/`;
 export const userIDURL = `${endpoint}/user/id/`;
