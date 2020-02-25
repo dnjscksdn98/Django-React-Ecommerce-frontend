@@ -10,6 +10,7 @@ export const orderItemDeleteURL = id => `${endpoint}/order-item/${id}/delete/`;
 export const orderItemSubtractURL = `${endpoint}/order-item/subtract/`;
 export const orderSummaryURL = `${endpoint}/order-summary/`;
 export const checkoutURL = `${endpoint}/checkout/`;
+export const paymentListURL = `${endpoint}/payments/`;
 export const addCouponURL = `${endpoint}/add-coupon/`;
 export const addressListURL = addressType =>
   `${endpoint}/address/list/?address_type=${addressType}`;
