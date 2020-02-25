@@ -102,7 +102,7 @@ class AddressForm extends React.Component {
 
     authAxios
       .post(addressCreateURL, {
-        ...formData,
+        formData,
         user: userID,
         address_type: activeItem === "billingAddress" ? "B" : "S"
       })
@@ -126,12 +126,16 @@ class AddressForm extends React.Component {
 
     authAxios
       .put(addressUpdateURL(formData.id), {
-        ...formData,
+        formData,
         user: userID,
         address_type: activeItem === "billingAddress" ? "B" : "S"
       })
       .then(res => {
-        this.setState({ saving: false, success: true });
+        this.setState({
+          saving: false,
+          success: true,
+          formData: { default: false }
+        });
         this.props.callback();
       })
       .catch(err => {
@@ -432,4 +436,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(Profile);
+export default connect(mapStateToProps, null)(Profile);

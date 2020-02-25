@@ -12,10 +12,16 @@ import {
   Image,
   Icon
 } from "semantic-ui-react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
 
 import { authAxios } from "../utils";
-import { orderSummaryURL } from "../constants";
+import {
+  orderSummaryURL,
+  orderItemDeleteURL,
+  orderItemSubtractURL,
+  addToCartURL
+} from "../constants";
 
 class OrderSummary extends React.Component {
   state = {
@@ -47,8 +53,52 @@ class OrderSummary extends React.Component {
       });
   };
 
+  handleAddItemQuantity = slug => {
+    this.setState({ loading: true });
+    authAxios
+      .post(addToCartURL, { slug })
+      .then(res => {
+        this.setState({ loading: false });
+        // callback
+        this.handleFetchOrder();
+      })
+      .catch(err => {
+        this.setState({ error: err, loading: false });
+      });
+  };
+
+  handleSubtractItemQuantity = slug => {
+    authAxios
+      .post(orderItemSubtractURL, { slug })
+      .then(res => {
+        this.setState({ loading: false });
+        // callback
+        this.handleFetchOrder();
+      })
+      .catch(err => {
+        this.setState({ error: err, loading: false });
+      });
+  };
+
+  handleRemoveItem = itemID => {
+    authAxios
+      .delete(orderItemDeleteURL(itemID))
+      .then(res => {
+        // callback
+        this.handleFetchOrder();
+      })
+      .catch(err => {
+        this.setState({ error: err });
+      });
+  };
+
   render() {
     const { data, error, loading } = this.state;
+
+    const { isAuthenticated } = this.props;
+    if (!isAuthenticated) {
+      return <Redirect to="/login" />;
+    }
 
     return (
       <Container style={{ marginTop: "100px" }}>
@@ -88,7 +138,25 @@ class OrderSummary extends React.Component {
                     <Table.Cell>{index + 1}</Table.Cell>
                     <Table.Cell>{order_item.item}</Table.Cell>
                     <Table.Cell>$ {order_item.item_obj.price}</Table.Cell>
-                    <Table.Cell>{order_item.quantity}</Table.Cell>
+                    <Table.Cell>
+                      <Icon
+                        name="minus"
+                        style={{ cursor: "pointer", marginRight: "5px" }}
+                        onClick={() =>
+                          this.handleSubtractItemQuantity(
+                            order_item.item_obj.slug
+                          )
+                        }
+                      />
+                      {order_item.quantity}
+                      <Icon
+                        name="plus"
+                        style={{ cursor: "pointer", marginLeft: "5px" }}
+                        onClick={() =>
+                          this.handleAddItemQuantity(order_item.item_obj.slug)
+                        }
+                      />
+                    </Table.Cell>
                     <Table.Cell>
                       {order_item.item_obj.discount_price && (
                         <Label color="blue" ribbon>
@@ -96,6 +164,12 @@ class OrderSummary extends React.Component {
                         </Label>
                       )}
                       $ {order_item.final_price}
+                      <Icon
+                        name="trash"
+                        color="red"
+                        style={{ float: "right", cursor: "pointer" }}
+                        onClick={() => this.handleRemoveItem(order_item.id)}
+                      />
                     </Table.Cell>
                   </Table.Row>
                 );
@@ -105,7 +179,7 @@ class OrderSummary extends React.Component {
                 <Table.Cell />
                 <Table.Cell />
                 <Table.Cell colSpan="2" textAlign="center">
-                  Total : $ {data.total}
+                  Order Total : $ {data.total}
                 </Table.Cell>
               </Table.Row>
             </Table.Body>
@@ -129,4 +203,10 @@ class OrderSummary extends React.Component {
   }
 }
 
-export default OrderSummary;
+const mapStateToProps = state => {
+  return {
+    isAuthenticated: state.auth.token !== null
+  };
+};
+
+export default connect(mapStateToProps, null)(OrderSummary);

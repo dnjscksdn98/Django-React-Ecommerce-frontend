@@ -51,7 +51,7 @@ class CustomLayout extends React.Component {
                     className="link item"
                   >
                     <Dropdown.Menu>
-                      {cart !== null ? (
+                      {cart !== null && cart.order_items.length !== 0 ? (
                         <React.Fragment>
                           {cart.order_items.map(order_item => {
                             return (
@@ -60,9 +60,9 @@ class CustomLayout extends React.Component {
                               </Dropdown.Item>
                             );
                           })}
-                          {cart.order_items.length === 0 ? (
+                          {/* {cart.order_items.length === 0 ? (
                             <Dropdown.Item>No Items</Dropdown.Item>
-                          ) : null}
+                          ) : null} */}
                           <Dropdown.Divider />
                           <Dropdown.Item
                             icon="arrow right"
