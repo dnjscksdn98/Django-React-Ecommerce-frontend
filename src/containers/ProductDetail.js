@@ -81,10 +81,10 @@ class ProductDetail extends React.Component {
   handleAddToCart = slug => {
     this.setState({ loading: true });
     const { formData } = this.state;
-    const variations = this.handleFormatData(formData);
+    const options = this.handleFormatData(formData);
 
     authAxios
-      .post(addToCartURL, { slug, variations })
+      .post(addToCartURL, { slug, options })
       .then(res => {
         // refresh the cart
         this.props.fetchCart();
@@ -135,8 +135,8 @@ class ProductDetail extends React.Component {
                       labelPosition="right"
                       onClick={this.handleToggleForm}
                     >
-                      Add to cart
-                      <Icon name="cart plus" />
+                      Select Options
+                      <Icon name="angle double down" />
                     </Button>
                     {item.label !== "Default" && (
                       <Label
@@ -158,13 +158,13 @@ class ProductDetail extends React.Component {
                 <React.Fragment>
                   <Divider />
                   <Form>
-                    {data.variations.map(variation => {
-                      const name = variation.name.toLowerCase();
+                    {data.options.map(option => {
+                      const name = option.name.toLowerCase();
                       return (
-                        <Form.Field key={variation.id}>
+                        <Form.Field key={option.id}>
                           <Select
                             onChange={this.handleChange}
-                            options={variation.item_variations.map(item => {
+                            options={option.item_options.map(item => {
                               return {
                                 key: item.id,
                                 text: item.value,
@@ -182,33 +182,36 @@ class ProductDetail extends React.Component {
 
                     <Form.Button
                       primary
+                      icon
+                      labelPosition="right"
                       onClick={() => this.handleAddToCart(item.slug)}
                     >
-                      Submit
+                      Add to cart
+                      <Icon name="cart plus" />
                     </Form.Button>
                   </Form>
                 </React.Fragment>
               )}
             </Grid.Column>
             <Grid.Column>
-              <Header as="h2">Select your variations</Header>
-              {data.variations &&
-                data.variations.map(variation => {
+              <Header as="h2">Select your options</Header>
+              {data.options &&
+                data.options.map(option => {
                   return (
-                    <React.Fragment key={variation.id}>
-                      <Header as="h3">{variation.name}</Header>
+                    <React.Fragment key={option.id}>
+                      <Header as="h3">{option.name}</Header>
                       <Item.Group divided>
-                        {variation.item_variations.map(itemVariation => {
+                        {option.item_options.map(itemOption => {
                           return (
-                            <Item key={itemVariation.id}>
-                              {itemVariation.attachment && (
+                            <Item key={itemOption.id}>
+                              {itemOption.attachment && (
                                 <Item.Image
                                   size="tiny"
-                                  src={`http://127.0.0.1:8000${itemVariation.attachment}`}
+                                  src={`http://127.0.0.1:8000${itemOption.attachment}`}
                                 />
                               )}
                               <Item.Content verticalAlign="middle">
-                                {itemVariation.value}
+                                {itemOption.value}
                               </Item.Content>
                             </Item>
                           );

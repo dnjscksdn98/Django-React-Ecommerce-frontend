@@ -53,10 +53,18 @@ class OrderSummary extends React.Component {
       });
   };
 
-  handleAddItemQuantity = slug => {
+  handleFormatData = itemOptions => {
+    // convert [{id: 1},{id: 2}] to [1,2] - they're all variations
+    return Object.keys(itemOptions).map(key => {
+      return itemOptions[key].id;
+    });
+  };
+
+  handleAddItemQuantity = (slug, itemOptions) => {
     this.setState({ loading: true });
+    const options = this.handleFormatData(itemOptions);
     authAxios
-      .post(addToCartURL, { slug })
+      .post(addToCartURL, { slug, options })
       .then(res => {
         this.setState({ loading: false });
         // callback
@@ -151,7 +159,10 @@ class OrderSummary extends React.Component {
                         name="plus"
                         style={{ cursor: "pointer", marginLeft: "5px" }}
                         onClick={() =>
-                          this.handleAddItemQuantity(order_item.item.slug)
+                          this.handleAddItemQuantity(
+                            order_item.item.slug,
+                            order_item.item_options
+                          )
                         }
                       />
                     </Table.Cell>
