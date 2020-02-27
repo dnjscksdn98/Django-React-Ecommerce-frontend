@@ -82,13 +82,20 @@ class ProductList extends React.Component {
               <Item key={item.id}>
                 <Item.Image src={item.image} />
                 <Item.Content>
-                  <Item.Header as="a">{item.title}</Item.Header>
+                  <Item.Header
+                    as="a"
+                    onClick={() =>
+                      this.props.history.push(`/products/${item.id}`)
+                    }
+                  >
+                    {item.title}
+                  </Item.Header>
                   <Item.Meta>
                     <span className="cinema">{item.category}</span>
                   </Item.Meta>
-                  <Item.Description>{item.description}</Item.Description>
+                  <Item.Description>{item.short_description}</Item.Description>
                   <Item.Extra>
-                    <Button
+                    {/* <Button
                       primary
                       floated="right"
                       icon
@@ -97,7 +104,7 @@ class ProductList extends React.Component {
                     >
                       Add to cart
                       <Icon name="cart plus" />
-                    </Button>
+                    </Button> */}
                     {item.label !== "Default" && (
                       <Label
                         color={

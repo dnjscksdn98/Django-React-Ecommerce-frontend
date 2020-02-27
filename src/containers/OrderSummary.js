@@ -136,16 +136,14 @@ class OrderSummary extends React.Component {
                 return (
                   <Table.Row key={order_item.id}>
                     <Table.Cell>{index + 1}</Table.Cell>
-                    <Table.Cell>{order_item.item}</Table.Cell>
-                    <Table.Cell>$ {order_item.item_obj.price}</Table.Cell>
+                    <Table.Cell>{order_item.item.title}</Table.Cell>
+                    <Table.Cell>$ {order_item.item.price}</Table.Cell>
                     <Table.Cell>
                       <Icon
                         name="minus"
                         style={{ cursor: "pointer", marginRight: "5px" }}
                         onClick={() =>
-                          this.handleSubtractItemQuantity(
-                            order_item.item_obj.slug
-                          )
+                          this.handleSubtractItemQuantity(order_item.item.slug)
                         }
                       />
                       {order_item.quantity}
@@ -153,12 +151,12 @@ class OrderSummary extends React.Component {
                         name="plus"
                         style={{ cursor: "pointer", marginLeft: "5px" }}
                         onClick={() =>
-                          this.handleAddItemQuantity(order_item.item_obj.slug)
+                          this.handleAddItemQuantity(order_item.item.slug)
                         }
                       />
                     </Table.Cell>
                     <Table.Cell>
-                      {order_item.item_obj.discount_price && (
+                      {order_item.item.discount_price && (
                         <Label color="blue" ribbon>
                           ON DISCOUNT
                         </Label>
