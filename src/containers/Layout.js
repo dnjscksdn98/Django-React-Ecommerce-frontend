@@ -55,7 +55,14 @@ class CustomLayout extends React.Component {
                         <React.Fragment>
                           {cart.order_items.map(order_item => {
                             return (
-                              <Dropdown.Item key={order_item.id}>
+                              <Dropdown.Item
+                                key={order_item.id}
+                                onClick={() =>
+                                  this.props.history.push(
+                                    `/products/${order_item.item.id}`
+                                  )
+                                }
+                              >
                                 {order_item.quantity} x {order_item.item.title}
                               </Dropdown.Item>
                             );
@@ -104,44 +111,52 @@ class CustomLayout extends React.Component {
         >
           <Container textAlign="center">
             <Grid divided inverted stackable>
-              <Grid.Column width={3}>
-                <Header inverted as="h4" content="Group 1" />
+              <Grid.Column width={4}>
+                <Header inverted as="h4" content="Shop and learn" />
                 <List link inverted>
-                  <List.Item as="a">Link One</List.Item>
-                  <List.Item as="a">Link Two</List.Item>
-                  <List.Item as="a">Link Three</List.Item>
-                  <List.Item as="a">Link Four</List.Item>
+                  {/* Todo : add product description page */}
+                  <List.Item as="a">Iphone</List.Item>
+                  <List.Item as="a">Mac</List.Item>
+                  <List.Item as="a">Ipad</List.Item>
+                  <List.Item as="a">Airpods</List.Item>
                 </List>
               </Grid.Column>
-              <Grid.Column width={3}>
-                <Header inverted as="h4" content="Group 2" />
+              <Grid.Column width={4}>
+                <Header inverted as="h4" content="Account" />
                 <List link inverted>
-                  <List.Item as="a">Link One</List.Item>
-                  <List.Item as="a">Link Two</List.Item>
-                  <List.Item as="a">Link Three</List.Item>
-                  <List.Item as="a">Link Four</List.Item>
+                  <List.Item as="a">Apple ID</List.Item>
+                  <List.Item as="a">Apple store ID</List.Item>
+                  {authenticated ? (
+                    <List.Item as="a">Logout</List.Item>
+                  ) : (
+                    <React.Fragment>
+                      <List.Item as="a">Login</List.Item>
+                      <List.Item as="a">Signup</List.Item>
+                    </React.Fragment>
+                  )}
                 </List>
               </Grid.Column>
-              <Grid.Column width={3}>
-                <Header inverted as="h4" content="Group 3" />
-                <List link inverted>
-                  <List.Item as="a">Link One</List.Item>
-                  <List.Item as="a">Link Two</List.Item>
-                  <List.Item as="a">Link Three</List.Item>
-                  <List.Item as="a">Link Four</List.Item>
-                </List>
-              </Grid.Column>
+
               <Grid.Column width={7}>
-                <Header inverted as="h4" content="Footer Header" />
+                <Header
+                  inverted
+                  as="h4"
+                  content="Thank you for visiting our shop"
+                />
                 <p>
-                  Extra space for a call to action inside the footer that could
-                  help re-engage users.
+                  More ways to shop: Find an Apple Store or other retailer near
+                  you.
                 </p>
+                <p>Or call 1-800-MY-APPLE.</p>
               </Grid.Column>
             </Grid>
 
             <Divider inverted section />
-            <Image centered size="mini" src="/logo.png" />
+            {/* <Image
+              centered
+              size="mini"
+              src="http://127.0.0.1:8000/media/logo.jpg"
+            /> */}
             <List horizontal inverted divided link size="small">
               <List.Item as="a" href="#">
                 Site Map
