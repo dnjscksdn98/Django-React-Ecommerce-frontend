@@ -83,6 +83,11 @@ class ProductDetail extends React.Component {
     const { formData } = this.state;
     const options = this.handleFormatData(formData);
 
+    const { isAuthenticated } = this.props;
+    if (!isAuthenticated) {
+      this.props.history.push("/login");
+    }
+
     authAxios
       .post(addToCartURL, { slug, options })
       .then(res => {
@@ -102,11 +107,7 @@ class ProductDetail extends React.Component {
     return (
       <Container style={{ marginTop: "100px" }}>
         {error && (
-          <Message
-            error
-            header="There was some errors with your submission"
-            content={JSON.stringify(error)}
-          />
+          <Message error header="There was some errors with your submission" />
         )}
         {loading && (
           <Segment>
@@ -164,11 +165,14 @@ class ProductDetail extends React.Component {
                         <Form.Field key={option.id}>
                           <Select
                             onChange={this.handleChange}
-                            options={option.item_options.map(item => {
+                            options={option.item_options.map(option => {
                               return {
-                                key: item.id,
-                                text: item.value,
-                                value: item.id
+                                key: option.id,
+                                text:
+                                  option.additional_price === null
+                                    ? option.value
+                                    : `${option.value} (+ $ ${option.additional_price})`,
+                                value: option.id
                               };
                             })}
                             placeholder={`Select a ${name}`}
@@ -211,7 +215,21 @@ class ProductDetail extends React.Component {
                                 />
                               )}
                               <Item.Content verticalAlign="middle">
-                                {itemOption.value}
+                                <Item.Description>
+                                  {itemOption.value}
+                                  {itemOption.additional_price && (
+                                    <Label
+                                      labelposition="right"
+                                      style={{ float: "right" }}
+                                    >
+                                      $ {itemOption.additional_price}
+                                      <Icon
+                                        name="angle double up"
+                                        style={{ marginLeft: "10px" }}
+                                      />
+                                    </Label>
+                                  )}
+                                </Item.Description>
                               </Item.Content>
                             </Item>
                           );
@@ -228,10 +246,18 @@ class ProductDetail extends React.Component {
   }
 }
 
+const mapStateToProps = state => {
+  return {
+    isAuthenticated: state.auth.token !== null
+  };
+};
+
 const mapDispatchToProps = dispatch => {
   return {
     fetchCart: () => dispatch(fetchCart())
   };
 };
 
-export default withRouter(connect(null, mapDispatchToProps)(ProductDetail));
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(ProductDetail)
+);

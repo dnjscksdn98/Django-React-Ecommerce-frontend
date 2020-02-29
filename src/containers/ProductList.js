@@ -61,11 +61,7 @@ class ProductList extends React.Component {
     return (
       <Container style={{ marginTop: "100px" }}>
         {error && (
-          <Message
-            error
-            header="There was some errors with your submission"
-            content={JSON.stringify(error)}
-          />
+          <Message error header="There was some errors with your submission" />
         )}
         {loading && (
           <Segment>

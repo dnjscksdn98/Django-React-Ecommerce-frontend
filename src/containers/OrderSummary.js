@@ -7,14 +7,16 @@ import {
   Button,
   Message,
   Dimmer,
+  Dropdown,
   Loader,
   Segment,
   Image,
   Icon
 } from "semantic-ui-react";
-import { Link, Redirect } from "react-router-dom";
+import { Link, Redirect, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 
+import { fetchCart } from "../store/actions/cart";
 import { authAxios } from "../utils";
 import {
   orderSummaryURL,
@@ -31,7 +33,10 @@ class OrderSummary extends React.Component {
   };
 
   componentDidMount() {
-    this.handleFetchOrder();
+    const { isAuthenticated } = this.props;
+    if (isAuthenticated) {
+      this.handleFetchOrder();
+    }
   }
 
   handleFetchOrder = () => {
@@ -82,6 +87,7 @@ class OrderSummary extends React.Component {
         this.setState({ loading: false });
         // callback
         this.handleFetchOrder();
+        this.props.fetchCart();
       })
       .catch(err => {
         this.setState({ error: err, loading: false });
@@ -94,6 +100,7 @@ class OrderSummary extends React.Component {
       .then(res => {
         // callback
         this.handleFetchOrder();
+        this.props.fetchCart();
       })
       .catch(err => {
         this.setState({ error: err });
@@ -107,6 +114,20 @@ class OrderSummary extends React.Component {
     if (!isAuthenticated) {
       return <Redirect to="/login" />;
     }
+
+    // if (data === []) {
+    //   return (
+    //     // <React.Fragment>
+    //     //   <Redirect to="/" />
+    //     //   <Message
+    //     //     warning
+    //     //     header="Your cart is empty!"
+    //     //     content="Add products to your cart."
+    //     //   />
+    //     // </React.Fragment>
+    //     <Redirect to="/" />
+    //   );
+    // }
 
     return (
       <Container style={{ marginTop: "100px" }}>
@@ -144,7 +165,21 @@ class OrderSummary extends React.Component {
                 return (
                   <Table.Row key={order_item.id}>
                     <Table.Cell>{index + 1}</Table.Cell>
-                    <Table.Cell>{order_item.item.title}</Table.Cell>
+                    <Table.Cell>
+                      <Dropdown loading={loading} text={order_item.item.title}>
+                        <Dropdown.Menu>
+                          <React.Fragment>
+                            {order_item.item_options.map(item_option => {
+                              return (
+                                <Dropdown.Item key={item_option.id}>
+                                  {item_option.value}
+                                </Dropdown.Item>
+                              );
+                            })}
+                          </React.Fragment>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </Table.Cell>
                     <Table.Cell>$ {order_item.item.price}</Table.Cell>
                     <Table.Cell>
                       <Icon
@@ -167,12 +202,12 @@ class OrderSummary extends React.Component {
                       />
                     </Table.Cell>
                     <Table.Cell>
+                      $ {order_item.final_price}
                       {order_item.item.discount_price && (
-                        <Label color="blue" ribbon>
-                          ON DISCOUNT
+                        <Label color="teal" tag style={{ marginLeft: "20px" }}>
+                          <Icon name="dollar sign" /> ON DISCOUNT
                         </Label>
                       )}
-                      $ {order_item.final_price}
                       <Icon
                         name="trash"
                         color="red"
@@ -218,4 +253,12 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, null)(OrderSummary);
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchCart: () => dispatch(fetchCart())
+  };
+};
+
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(OrderSummary)
+);

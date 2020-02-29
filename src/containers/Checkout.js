@@ -212,6 +212,7 @@ class CheckoutForm extends React.Component {
   handleAddCoupon = (event, code) => {
     event.preventDefault();
     this.setState({ loading: true });
+
     authAxios
       .post(addCouponURL, { code })
       .then(res => {
@@ -271,7 +272,7 @@ class CheckoutForm extends React.Component {
         {error && (
           <Message
             error
-            header="There was some errors with your submission"
+            header="There was some errors with your submission."
             content={JSON.stringify(error)}
           />
         )}
