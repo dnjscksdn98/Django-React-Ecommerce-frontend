@@ -62,6 +62,7 @@ class PaymentHistory extends React.Component {
 
   render() {
     const { payments, loading, error } = this.state;
+    console.log(payments);
 
     return (
       <Table celled>

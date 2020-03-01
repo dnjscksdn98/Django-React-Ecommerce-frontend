@@ -1,11 +1,11 @@
 import React from "react";
 import {
+  Confirm,
   Container,
   Divider,
   Grid,
   Header,
   Dropdown,
-  Image,
   List,
   Menu,
   Segment,
@@ -18,12 +18,31 @@ import { logout } from "../store/actions/auth";
 import { fetchCart } from "../store/actions/cart";
 
 class CustomLayout extends React.Component {
+  state = {
+    open: false
+  };
+
   componentDidMount() {
     this.props.fetchCart();
   }
 
+  handleShow = () => {
+    this.setState({ open: true });
+  };
+
+  handleConfirm = () => {
+    this.setState({ open: false });
+    this.props.logout();
+  };
+
+  handleCancel = () => {
+    this.setState({ open: false });
+  };
+
   render() {
     const { authenticated, cart, loading } = this.props;
+    const { open } = this.state;
+
     return (
       <div>
         <Menu fixed="top" inverted>
@@ -84,9 +103,16 @@ class CustomLayout extends React.Component {
                       )}
                     </Dropdown.Menu>
                   </Dropdown>
-                  <Menu.Item header onClick={() => this.props.logout()}>
+                  <Menu.Item header onClick={this.handleShow}>
                     Logout
                   </Menu.Item>
+                  <Confirm
+                    open={open}
+                    header="Trying to logout"
+                    content="Are you sure?"
+                    onCancel={this.handleCancel}
+                    onConfirm={this.handleConfirm}
+                  />
                 </React.Fragment>
               ) : (
                 <React.Fragment>
